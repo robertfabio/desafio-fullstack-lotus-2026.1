@@ -3,6 +3,7 @@ package com.desafio.lotus.service;
 import com.desafio.lotus.dto.request.LoginRequest;
 import com.desafio.lotus.dto.request.RegisterRequest;
 import com.desafio.lotus.dto.response.AuthResponse;
+import com.desafio.lotus.dto.response.MessageResponse;
 import com.desafio.lotus.dto.response.UserResponse;
 import com.desafio.lotus.exception.EmailAlreadyExistsException;
 import com.desafio.lotus.exception.InvalidCredentialsException;
@@ -60,6 +61,15 @@ public class AuthService {
         String token = jwtUtil.generateToken(user);
         UserResponse userResponse = toUserResponse(user);
         return new AuthResponse(token, userResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse me(User authenticatedUser) {
+        return toUserResponse(authenticatedUser);
+    }
+
+    public MessageResponse logout() {
+        return new MessageResponse("Logout realizado com sucesso");
     }
 
     private UserResponse toUserResponse(User user) {
