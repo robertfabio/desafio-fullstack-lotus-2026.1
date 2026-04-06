@@ -2,6 +2,7 @@ package com.desafio.lotus.controller;
 
 import com.desafio.lotus.dto.request.ProjectRequest;
 import com.desafio.lotus.dto.response.ProjectResponse;
+import com.desafio.lotus.dto.response.ProjectSummaryResponse;
 import com.desafio.lotus.model.User;
 import com.desafio.lotus.service.ProjectService;
 import jakarta.validation.Valid;
@@ -48,6 +49,13 @@ public class ProjectController {
     public ProjectResponse findById(@PathVariable UUID id, Authentication authentication) {
         User authenticatedUser = (User) authentication.getPrincipal();
         return projectService.findById(id, authenticatedUser);
+    }
+
+    @GetMapping("/{id}/summary")
+    @ResponseStatus(HttpStatus.OK)
+    public ProjectSummaryResponse findSummary(@PathVariable UUID id, Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        return projectService.findSummary(id, authenticatedUser);
     }
 
     @PutMapping("/{id}")

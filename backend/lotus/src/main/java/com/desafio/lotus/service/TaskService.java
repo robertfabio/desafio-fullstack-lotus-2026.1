@@ -59,9 +59,8 @@ public class TaskService {
             UUID projectId,
             LocalDate dueDate
     ) {
-        Specification<Task> specification = Specification.where(
-                (root, query, cb) -> cb.equal(root.get("project").get("user").get("id"), authenticatedUser.getId())
-        );
+        Specification<Task> specification =
+            (root, query, cb) -> cb.equal(root.get("project").get("user").get("id"), authenticatedUser.getId());
 
         if (status != null) {
             specification = specification.and((root, query, cb) -> cb.equal(root.get("status"), status));

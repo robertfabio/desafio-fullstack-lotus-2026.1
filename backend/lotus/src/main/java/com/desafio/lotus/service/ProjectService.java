@@ -2,11 +2,14 @@ package com.desafio.lotus.service;
 
 import com.desafio.lotus.dto.request.ProjectRequest;
 import com.desafio.lotus.dto.response.ProjectResponse;
+import com.desafio.lotus.dto.response.ProjectSummaryResponse;
 import com.desafio.lotus.exception.ForbiddenException;
 import com.desafio.lotus.exception.ResourceNotFoundException;
 import com.desafio.lotus.model.Project;
+import com.desafio.lotus.model.TaskStatus;
 import com.desafio.lotus.model.User;
 import com.desafio.lotus.repository.ProjectRepository;
+import com.desafio.lotus.repository.TaskRepository;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -16,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository) {
         this.projectRepository = projectRepository;
+        this.taskRepository = taskRepository;
     }
 
     @Transactional
@@ -47,12 +52,24 @@ public class ProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado"));
 
-        boolean isOwner = project.getUser().getId().equals(authenticatedUser.getId());
-        if (!isOwner && !Boolean.TRUE.equals(project.getShared())) {
-            throw new ForbiddenException("Você não tem permissão para acessar este projeto");
-        }
+        validateViewPermission(project, authenticatedUser);
 
         return toProjectResponse(project);
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectSummaryResponse findSummary(UUID id, User authenticatedUser) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado"));
+
+        validateViewPermission(project, authenticatedUser);
+
+        long total = taskRepository.countByProjectId(project.getId());
+        long pending = taskRepository.countByProjectIdAndStatus(project.getId(), TaskStatus.PENDING);
+        long inProgress = taskRepository.countByProjectIdAndStatus(project.getId(), TaskStatus.IN_PROGRESS);
+        long done = taskRepository.countByProjectIdAndStatus(project.getId(), TaskStatus.DONE);
+
+        return new ProjectSummaryResponse(total, pending, inProgress, done);
     }
 
     @Transactional
@@ -84,6 +101,13 @@ public class ProjectService {
         boolean isOwner = project.getUser().getId().equals(authenticatedUser.getId());
         if (!isOwner) {
             throw new ForbiddenException("Você não tem permissão para modificar este projeto");
+        }
+    }
+
+    private void validateViewPermission(Project project, User authenticatedUser) {
+        boolean isOwner = project.getUser().getId().equals(authenticatedUser.getId());
+        if (!isOwner && !Boolean.TRUE.equals(project.getShared())) {
+            throw new ForbiddenException("Você não tem permissão para acessar este projeto");
         }
     }
 
