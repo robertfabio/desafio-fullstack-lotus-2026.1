@@ -6,12 +6,17 @@ import com.desafio.lotus.dto.response.TaskResponse;
 import com.desafio.lotus.exception.ForbiddenException;
 import com.desafio.lotus.exception.ResourceNotFoundException;
 import com.desafio.lotus.model.Project;
+import com.desafio.lotus.model.TaskPriority;
 import com.desafio.lotus.model.Task;
+import com.desafio.lotus.model.TaskStatus;
 import com.desafio.lotus.model.User;
 import com.desafio.lotus.repository.ProjectRepository;
 import com.desafio.lotus.repository.TaskRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +52,35 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public List<TaskResponse> findAll(User authenticatedUser) {
-        return taskRepository.findAllByProjectUserId(authenticatedUser.getId()).stream()
+    public List<TaskResponse> findAll(
+            User authenticatedUser,
+            TaskStatus status,
+            TaskPriority priority,
+            UUID projectId,
+            LocalDate dueDate
+    ) {
+        Specification<Task> specification = Specification.where(
+                (root, query, cb) -> cb.equal(root.get("project").get("user").get("id"), authenticatedUser.getId())
+        );
+
+        if (status != null) {
+            specification = specification.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
+
+        if (priority != null) {
+            specification = specification.and((root, query, cb) -> cb.equal(root.get("priority"), priority));
+        }
+
+        if (projectId != null) {
+            specification = specification.and((root, query, cb) -> cb.equal(root.get("project").get("id"), projectId));
+        }
+
+        if (dueDate != null) {
+            LocalDateTime endOfDay = dueDate.atTime(23, 59, 59);
+            specification = specification.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("dueDate"), endOfDay));
+        }
+
+        return taskRepository.findAll(specification).stream()
                 .map(this::toTaskResponse)
                 .toList();
     }
