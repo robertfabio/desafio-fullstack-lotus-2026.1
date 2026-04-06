@@ -1,5 +1,6 @@
 package com.desafio.lotus.controller;
 
+import com.desafio.lotus.dto.request.LoginRequest;
 import com.desafio.lotus.dto.request.RegisterRequest;
 import com.desafio.lotus.dto.response.AuthResponse;
 import com.desafio.lotus.service.AuthService;
@@ -25,5 +26,11 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
+    }
+
+    @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }

@@ -1,9 +1,11 @@
 package com.desafio.lotus.service;
 
+import com.desafio.lotus.dto.request.LoginRequest;
 import com.desafio.lotus.dto.request.RegisterRequest;
 import com.desafio.lotus.dto.response.AuthResponse;
 import com.desafio.lotus.dto.response.UserResponse;
 import com.desafio.lotus.exception.EmailAlreadyExistsException;
+import com.desafio.lotus.exception.InvalidCredentialsException;
 import com.desafio.lotus.model.User;
 import com.desafio.lotus.repository.UserRepository;
 import com.desafio.lotus.security.JwtUtil;
@@ -40,13 +42,33 @@ public class AuthService {
         User savedUser = userRepository.save(user);
         String token = jwtUtil.generateToken(savedUser);
 
-        UserResponse userResponse = new UserResponse(
-                savedUser.getId(),
-                savedUser.getName(),
-                savedUser.getEmail(),
-                savedUser.getCreatedAt()
-        );
-
+        UserResponse userResponse = toUserResponse(savedUser);
         return new AuthResponse(token, userResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponse login(LoginRequest request) {
+        String normalizedEmail = request.email().trim().toLowerCase();
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new InvalidCredentialsException("Credenciais inválidas"));
+
+        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
+        if (!passwordMatches) {
+            throw new InvalidCredentialsException("Credenciais inválidas");
+        }
+
+        String token = jwtUtil.generateToken(user);
+        UserResponse userResponse = toUserResponse(user);
+        return new AuthResponse(token, userResponse);
+    }
+
+    private UserResponse toUserResponse(User user) {
+        UserResponse userResponse = new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt()
+        );
+        return userResponse;
     }
 }
