@@ -3,10 +3,13 @@ package com.desafio.lotus.repository;
 import com.desafio.lotus.model.Task;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaskRepository extends JpaRepository<Task, UUID> {
+
+    Optional<Task> findByIdAndProjectUserId(UUID id, UUID userId);
 
     List<Task> findAllByProjectId(UUID projectId);
 
