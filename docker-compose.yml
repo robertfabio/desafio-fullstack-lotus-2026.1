@@ -2,10 +2,12 @@ version: '3.8'
 
 services:
   api:
-    build: .
+    build:
+      context: ./backend/lotus
+      dockerfile: Dockerfile
     container_name: lotus-api
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     environment:
       - JWT_SECRET=${}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173}
