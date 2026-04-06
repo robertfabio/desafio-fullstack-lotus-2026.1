@@ -1,6 +1,7 @@
 package com.desafio.lotus.controller;
 
 import com.desafio.lotus.dto.request.TaskRequest;
+import com.desafio.lotus.dto.request.TaskStatusRequest;
 import com.desafio.lotus.dto.response.TaskResponse;
 import com.desafio.lotus.model.User;
 import com.desafio.lotus.service.TaskService;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,6 +61,17 @@ public class TaskController {
     ) {
         User authenticatedUser = (User) authentication.getPrincipal();
         return taskService.update(id, request, authenticatedUser);
+    }
+
+    @PatchMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.OK)
+    public TaskResponse patchStatus(
+            @PathVariable UUID id,
+            @Valid @RequestBody TaskStatusRequest request,
+            Authentication authentication
+    ) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        return taskService.patchStatus(id, request, authenticatedUser);
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,7 @@
 package com.desafio.lotus.service;
 
 import com.desafio.lotus.dto.request.TaskRequest;
+import com.desafio.lotus.dto.request.TaskStatusRequest;
 import com.desafio.lotus.dto.response.TaskResponse;
 import com.desafio.lotus.exception.ForbiddenException;
 import com.desafio.lotus.exception.ResourceNotFoundException;
@@ -79,6 +80,18 @@ public class TaskService {
         task.setPriority(request.priority());
         task.setDueDate(request.dueDate());
 
+        Task savedTask = taskRepository.save(task);
+        return toTaskResponse(savedTask);
+    }
+
+    @Transactional
+    public TaskResponse patchStatus(UUID id, TaskStatusRequest request, User authenticatedUser) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada"));
+
+        validateProjectOwnership(task.getProject(), authenticatedUser);
+
+        task.setStatus(request.status());
         Task savedTask = taskRepository.save(task);
         return toTaskResponse(savedTask);
     }
