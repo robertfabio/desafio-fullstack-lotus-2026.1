@@ -23,7 +23,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserResponse> findAll(User authenticatedUser) {
-        return List.of(toUserResponse(authenticatedUser));
+        return userRepository.findAll().stream()
+                .map(this::toUserResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

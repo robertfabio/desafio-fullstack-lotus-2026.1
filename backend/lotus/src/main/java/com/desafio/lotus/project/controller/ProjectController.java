@@ -3,6 +3,8 @@ package com.desafio.lotus.project.controller;
 import com.desafio.lotus.project.dto.request.ProjectRequest;
 import com.desafio.lotus.project.dto.response.ProjectResponse;
 import com.desafio.lotus.project.dto.response.ProjectSummaryResponse;
+import com.desafio.lotus.task.dto.response.TaskResponse;
+import com.desafio.lotus.task.service.TaskService;
 import com.desafio.lotus.user.model.User;
 import com.desafio.lotus.project.service.ProjectService;
 import jakarta.validation.Valid;
@@ -25,9 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final TaskService taskService;
 
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, TaskService taskService) {
         this.projectService = projectService;
+        this.taskService = taskService;
     }
 
     @PostMapping
@@ -49,6 +53,13 @@ public class ProjectController {
     public ProjectResponse findById(@PathVariable UUID id, Authentication authentication) {
         User authenticatedUser = (User) authentication.getPrincipal();
         return projectService.findById(id, authenticatedUser);
+    }
+
+    @GetMapping("/{id}/tasks")
+    @ResponseStatus(HttpStatus.OK)
+    public List<TaskResponse> findTasksByProject(@PathVariable UUID id, Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        return taskService.findAllByProjectId(id, authenticatedUser);
     }
 
     @GetMapping("/{id}/summary")

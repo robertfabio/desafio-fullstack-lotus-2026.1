@@ -7,7 +7,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.desafio.lotus.user.model.User;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ public class JwtUtil {
 
 	private final Algorithm algorithm;
 	private final long expirationMs;
+	private final Map<String, Long> revokedTokens = new ConcurrentHashMap<>();
 
 	public JwtUtil(
 			@Value("${app.jwt.secret}") String secret,
@@ -41,10 +44,30 @@ public class JwtUtil {
 	public boolean validateToken(String token) {
 		try {
 			JWT.require(algorithm).build().verify(token);
-			return true;
+			return !isTokenRevoked(token);
 		} catch (JWTVerificationException ex) {
 			return false;
 		}
+	}
+
+	public void revokeToken(String token) {
+		try {
+			DecodedJWT decodedJWT = JWT.require(algorithm).build().verify(token);
+			revokedTokens.put(token, decodedJWT.getExpiresAt().toInstant().toEpochMilli());
+		} catch (JWTVerificationException ex) {
+			throw new IllegalArgumentException("Token invalido");
+		}
+	}
+
+	private boolean isTokenRevoked(String token) {
+		cleanupExpiredRevocations();
+		Long expiresAt = revokedTokens.get(token);
+		return expiresAt != null && expiresAt > Instant.now().toEpochMilli();
+	}
+
+	private void cleanupExpiredRevocations() {
+		long now = Instant.now().toEpochMilli();
+		revokedTokens.entrySet().removeIf(entry -> entry.getValue() <= now);
 	}
 
 	public UUID getSubject(String token) {

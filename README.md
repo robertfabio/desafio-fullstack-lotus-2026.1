@@ -1,76 +1,86 @@
 # Desafio Fullstack Lotus
 
-Projeto fullstack com backend Spring Boot e frontend React para gerenciamento de usuarios, projetos e tarefas.
+Aplicação fullstack Todo list.
 
-## Stack e justificativa
-- Backend: Spring Boot 3 + Spring Security + Spring Data JPA
-- Banco: H2 (simples para setup local e avaliacao rapida)
-- Auth: JWT + BCrypt
-- Docs de API: Springdoc OpenAPI (Swagger UI)
-- Frontend: React + Vite
+## O que voce encontra aqui
+- Backend com API REST, autenticação JWT e persistência em H2.
+- Frontend React para login, cadastro, projetos, tarefas e dashboard.
+- Ambiente local rápido com Docker Compose.
+
+## Arquitetura (visao geral)
+
+```mermaid
+flowchart LR
+	U[Usuario no navegador] --> F[Frontend React + Vite]
+	F -->|HTTP + JWT| B[Backend Spring Boot]
+	B --> D[(H2 Database)]
+	B --> S[Swagger OpenAPI]
+```
+
+## Fluxo principal
+
+```mermaid
+flowchart TD
+	A[Registrar ou Logar] --> B[Receber token JWT]
+	B --> C[Criar e listar projetos]
+	C --> D[Criar e atualizar tarefas]
+	D --> E[Acompanhar painel e status]
+```
+
+## Stack
+- Backend: Spring Boot 3, Spring Security, Spring Data JPA, Lombok
+- Banco: H2
+- Auth: JWT e BCrypt
+- Frontend: React e Vite
 - Containers: Docker Compose
-
-Motivacao da stack:
-- Spring Boot entrega produtividade alta e padrao de mercado para APIs REST.
-- JWT + BCrypt cobre autenticacao stateless e armazenamento seguro de senha.
-- H2 reduz friccao no ambiente de desenvolvimento e avaliacao.
-- OpenAPI facilita validacao dos endpoints e onboarding tecnico.
 
 ## Requisitos
 - Java 17+
-- Maven (ou usar `mvnw`)
 - Node 18+
 - Docker e Docker Compose (opcional)
 
-## Configuracao de ambiente
-Ja existem arquivos `.env` prontos para desenvolvimento local com segredo de teste.
+## Estrutura
+- backend/lotus: API Spring Boot
+- frontend: aplicacao React
+- docs: guia de uso e coleção Insomnia
 
-Arquivos principais:
-- `.env`
-- `backend/lotus/.env`
-- `frontend/.env`
-
-## Rodando o backend local
-1. Entre em `backend/lotus`
-2. Execute:
+## Rodar com Docker (mais simples)
+Na raiz do projeto:
 
 ```bash
-./mvnw spring-boot:run
+docker compose up -d --build
 ```
 
-No Windows:
+Endpoints uteis:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8080
+- Swagger: http://localhost:8080/swagger-ui/index.html
+
+## Rodar local sem Docker
+
+Backend:
 
 ```powershell
+cd backend/lotus
 .\mvnw.cmd spring-boot:run
 ```
 
-## Rodando o frontend local
-1. Entre em `frontend`
-2. Execute:
+Frontend:
 
-```bash
+```powershell
+cd frontend
 npm install
 npm run dev
 ```
 
-## Docker Compose
-Na raiz do projeto:
-
-```bash
-docker compose up --build
-```
-
-## Swagger / OpenAPI
-- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
-
-## Docs e Insomnia
-- Guia: `docs/README.md`
-- Colecao Insomnia: `docs/insomnia-lotus.json`
-
 ## Testes
-No backend:
+Backend:
 
 ```powershell
+cd backend/lotus
 .\mvnw.cmd test
 ```
+
+## Documentacao adicional
+- Guia: docs/README.md
+- Insomnia: docs/insomnia-lotus.json

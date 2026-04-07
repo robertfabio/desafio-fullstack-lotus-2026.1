@@ -36,7 +36,7 @@ public class TaskService {
         Project project = projectRepository.findById(request.projectId())
                 .orElseThrow(() -> new ResourceNotFoundException("Projeto nao encontrado"));
 
-        validateProjectOwnership(project, authenticatedUser);
+        validateProjectAccess(project, authenticatedUser);
 
         Task task = Task.builder()
                 .project(project)
@@ -84,12 +84,24 @@ public class TaskService {
                 .toList();
     }
 
+        @Transactional(readOnly = true)
+        public List<TaskResponse> findAllByProjectId(UUID projectId, User authenticatedUser) {
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new ResourceNotFoundException("Projeto nao encontrado"));
+
+        validateProjectAccess(project, authenticatedUser);
+
+        return taskRepository.findAllByProjectId(projectId).stream()
+            .map(this::toTaskResponse)
+            .toList();
+        }
+
     @Transactional(readOnly = true)
     public TaskResponse findById(UUID id, User authenticatedUser) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarefa nao encontrada"));
 
-        validateProjectOwnership(task.getProject(), authenticatedUser);
+        validateProjectAccess(task.getProject(), authenticatedUser);
         return toTaskResponse(task);
     }
 
@@ -98,11 +110,11 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarefa nao encontrada"));
 
-        validateProjectOwnership(task.getProject(), authenticatedUser);
+        validateProjectAccess(task.getProject(), authenticatedUser);
 
         Project newProject = projectRepository.findById(request.projectId())
             .orElseThrow(() -> new ResourceNotFoundException("Projeto nao encontrado"));
-        validateProjectOwnership(newProject, authenticatedUser);
+        validateProjectAccess(newProject, authenticatedUser);
 
         task.setProject(newProject);
         task.setTitle(request.title().trim());
@@ -120,7 +132,7 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarefa nao encontrada"));
 
-        validateProjectOwnership(task.getProject(), authenticatedUser);
+        validateProjectAccess(task.getProject(), authenticatedUser);
 
         task.setStatus(request.status());
         Task savedTask = taskRepository.save(task);
@@ -132,12 +144,15 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarefa nao encontrada"));
 
-        validateProjectOwnership(task.getProject(), authenticatedUser);
+        validateProjectAccess(task.getProject(), authenticatedUser);
         taskRepository.delete(task);
     }
 
-    private void validateProjectOwnership(Project project, User authenticatedUser) {
-        if (!project.getUser().getId().equals(authenticatedUser.getId())) {
+    private void validateProjectAccess(Project project, User authenticatedUser) {
+        boolean isOwner = project.getUser().getId().equals(authenticatedUser.getId());
+        boolean isShared = Boolean.TRUE.equals(project.getShared());
+
+        if (!isOwner && !isShared) {
             throw new ForbiddenException("Você não tem permissão para acessar esta tarefa");
         }
     }

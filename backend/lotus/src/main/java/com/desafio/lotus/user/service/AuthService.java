@@ -68,7 +68,17 @@ public class AuthService {
         return toUserResponse(authenticatedUser);
     }
 
-    public MessageResponse logout() {
+    public MessageResponse logout(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new InvalidCredentialsException("Token inválido");
+        }
+
+        String token = authorizationHeader.substring(7).trim();
+        if (token.isBlank()) {
+            throw new InvalidCredentialsException("Token inválido");
+        }
+
+        jwtUtil.revokeToken(token);
         return new MessageResponse("Logout realizado com sucesso");
     }
 

@@ -41,7 +41,7 @@ class TaskControllerIntegrationTest {
                                                 .principal(new UsernamePasswordAuthenticationToken(principal, null))
                         .param("status", "invalid-status"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Validation failed"));
+                .andExpect(jsonPath("$.message").value("Falha na validação"));
     }
 
     @Test
