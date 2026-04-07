@@ -26,11 +26,11 @@ public class OpenApiConfig {
     public OpenAPI lotusOpenApi() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Lotus API")
+                        .title("API Lotus")
                         .description("API de gerenciamento de usuarios, projetos e tarefas")
                         .version("v1")
                         .contact(new Contact()
-                                .name("Lotus Team")
+                                .name("Equipe Lotus")
                                 .email("dev@lotus.local"))
                         .license(new License().name("MIT")))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))

@@ -53,13 +53,13 @@ public class TaskController {
             Authentication authentication,
             @RequestParam(required = false)
             @Pattern(
-                regexp = "(?i)pending|in_progress|done",
+                regexp = "(?i)pending|in_progress|done|pendente|em_progresso|concluida",
                 message = "Status deve ser: pending, in_progress ou done"
             )
             String status,
             @RequestParam(required = false)
             @Pattern(
-                regexp = "(?i)low|medium|high",
+                regexp = "(?i)low|medium|high|baixa|media|alta",
                 message = "Prioridade deve ser: low, medium ou high"
             )
             String priority,
@@ -81,7 +81,14 @@ public class TaskController {
             return null;
         }
         try {
-            return TaskStatus.fromValue(status);
+            String normalizedStatus = switch (status.toLowerCase()) {
+                case "pendente" -> "pending";
+                case "em_progresso" -> "in_progress";
+                case "concluida" -> "done";
+                default -> status;
+            };
+
+            return TaskStatus.fromValue(normalizedStatus);
         } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status invalido");
         }
@@ -92,7 +99,14 @@ public class TaskController {
             return null;
         }
         try {
-            return TaskPriority.fromValue(priority);
+            String normalizedPriority = switch (priority.toLowerCase()) {
+                case "baixa" -> "low";
+                case "media", "média" -> "medium";
+                case "alta" -> "high";
+                default -> priority;
+            };
+
+            return TaskPriority.fromValue(normalizedPriority);
         } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Prioridade invalida");
         }

@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .toList();
 
-        return buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI(), errors);
+        return buildResponse(HttpStatus.BAD_REQUEST, "Falha na validação", request.getRequestURI(), errors);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
                 .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                 .toList();
 
-        return buildResponse(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI(), errors);
+        return buildResponse(HttpStatus.BAD_REQUEST, "Falha na validação", request.getRequestURI(), errors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException ex,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.BAD_REQUEST, "Malformed request body", request.getRequestURI());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Corpo da requisição malformado", request.getRequestURI());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
             AccessDeniedException ex,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.FORBIDDEN, "Access denied", request.getRequestURI());
+        return buildResponse(HttpStatus.FORBIDDEN, "Acesso negado", request.getRequestURI());
     }
 
     @ExceptionHandler(ResponseStatusException.class)
@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
     ) {
         HttpStatusCode statusCode = ex.getStatusCode();
         String reason = ex.getReason();
-        String message = (reason == null || reason.isBlank()) ? "Request failed" : reason;
+        String message = (reason == null || reason.isBlank()) ? "Falha na requisição" : reason;
         return buildResponse(statusCode, message, request.getRequestURI());
     }
 
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex, HttpServletRequest request) {
         return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Unexpected internal server error",
+                "Erro interno inesperado no servidor",
                 request.getRequestURI()
         );
     }

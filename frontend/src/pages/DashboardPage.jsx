@@ -117,7 +117,7 @@ export function DashboardPage() {
         setProjectCount(loadedProjects.length)
         setTasks(loadedTasks)
       } catch (error) {
-        setSummaryError(error.message || 'Nao foi possivel carregar o resumo do dashboard')
+        setSummaryError(error.message || 'Não foi possivel carregar o resumo do painel')
       } finally {
         setIsLoadingSummary(false)
       }
@@ -130,7 +130,7 @@ export function DashboardPage() {
     <div className="mx-auto w-full max-w-5xl">
         <Card>
           <CardHeader>
-            <CardTitle>Dashboard</CardTitle>
+            <CardTitle>Painel</CardTitle>
             <CardDescription>Visao geral com total de projetos e status das tarefas.</CardDescription>
             <div className="pt-2">
               <Badge variant="success">Autenticado</Badge>

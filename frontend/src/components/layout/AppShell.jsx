@@ -7,7 +7,7 @@ import { Button } from '../ui'
 import { useAuthStore } from '../../stores/authStore'
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard' },
+  { to: '/dashboard', label: 'Painel' },
   { to: '/projects', label: 'Projetos' },
   { to: '/tasks', label: 'Tarefas' },
 ]
@@ -94,7 +94,7 @@ export function AppShell() {
       <aside className="hidden w-64 shrink-0 border-r-2 border-[#e6d9f3] bg-linear-to-b from-[#f8f2ff] via-white to-[#f2e7fb] p-5 md:flex md:flex-col">
         <div className="mb-6">
           <p className="text-lg font-semibold text-[#2f2141]">Lotus</p>
-          <p className="text-xs text-[#70538f]">Task management</p>
+          <p className="text-xs text-[#70538f]">Gerenciamento de tarefas</p>
         </div>
 
         <nav className="space-y-2">
