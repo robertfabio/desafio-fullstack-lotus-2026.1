@@ -1,8 +1,10 @@
 package com.desafio.lotus.exception;
 
-public class EmailAlreadyExistsException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class EmailAlreadyExistsException extends BusinessException {
 
     public EmailAlreadyExistsException(String email) {
-        super("Email já existe: " + email);
+        super(HttpStatus.CONFLICT, "Email já existe: " + email);
     }
 }

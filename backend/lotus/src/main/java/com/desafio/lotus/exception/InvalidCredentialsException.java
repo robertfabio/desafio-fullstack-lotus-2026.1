@@ -1,8 +1,10 @@
 package com.desafio.lotus.exception;
 
-public class InvalidCredentialsException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class InvalidCredentialsException extends BusinessException {
 
     public InvalidCredentialsException(String message) {
-        super(message);
+        super(HttpStatus.UNAUTHORIZED, message);
     }
 }

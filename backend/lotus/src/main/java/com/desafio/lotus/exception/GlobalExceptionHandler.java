@@ -20,33 +20,12 @@ import org.springframework.web.server.ResponseStatusException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleEmailAlreadyExists(
-            EmailAlreadyExistsException ex,
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, Object>> handleBusinessException(
+            BusinessException ex,
             HttpServletRequest request
     ) {
-        return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
-    }
-
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidCredentials(
-            InvalidCredentialsException ex,
-            HttpServletRequest request
-    ) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
-    }
-
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<Map<String, Object>> handleForbidden(ForbiddenException ex, HttpServletRequest request) {
-        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI());
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(
-            ResourceNotFoundException ex,
-            HttpServletRequest request
-    ) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
+        return buildResponse(ex.getStatus(), ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

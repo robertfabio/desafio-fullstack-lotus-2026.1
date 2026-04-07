@@ -1,7 +1,7 @@
 package com.desafio.lotus.security;
 
-import com.desafio.lotus.model.User;
-import com.desafio.lotus.repository.UserRepository;
+import com.desafio.lotus.user.model.User;
+import com.desafio.lotus.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,3 +56,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+
