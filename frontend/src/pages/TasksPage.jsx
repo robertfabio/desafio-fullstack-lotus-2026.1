@@ -106,6 +106,19 @@ function labelize(value) {
     return '-'
   }
 
+  const map = {
+    pending: 'pendente',
+    in_progress: 'em progresso',
+    done: 'concluida',
+    low: 'baixa',
+    medium: 'média',
+    high: 'alta',
+  }
+
+  if (map[value]) {
+    return map[value]
+  }
+
   return value.replaceAll('_', ' ')
 }
 

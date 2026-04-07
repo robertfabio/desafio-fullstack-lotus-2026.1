@@ -138,7 +138,7 @@ public class TaskService {
 
     private void validateProjectOwnership(Project project, User authenticatedUser) {
         if (!project.getUser().getId().equals(authenticatedUser.getId())) {
-            throw new ForbiddenException("Voce nao tem permissao para acessar esta tarefa");
+            throw new ForbiddenException("Você não tem permissão para acessar esta tarefa");
         }
     }
 

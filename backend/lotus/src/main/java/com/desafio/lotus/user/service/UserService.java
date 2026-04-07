@@ -29,7 +29,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse findById(UUID id, User authenticatedUser) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado"));
         validateOwnership(user.getId(), authenticatedUser);
         return toUserResponse(user);
     }
@@ -55,14 +55,14 @@ public class UserService {
     @Transactional
     public void delete(UUID id, User authenticatedUser) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado"));
         validateOwnership(user.getId(), authenticatedUser);
         userRepository.delete(user);
     }
 
     private void validateOwnership(UUID targetUserId, User authenticatedUser) {
         if (!targetUserId.equals(authenticatedUser.getId())) {
-            throw new ForbiddenException("Voce nao tem permissao para acessar este recurso");
+            throw new ForbiddenException("Você não tem permissão para acessar este recurso");
         }
     }
 

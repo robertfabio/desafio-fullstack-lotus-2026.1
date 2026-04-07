@@ -100,14 +100,14 @@ public class ProjectService {
     private void validateOwnership(Project project, User authenticatedUser) {
         boolean isOwner = project.getUser().getId().equals(authenticatedUser.getId());
         if (!isOwner) {
-            throw new ForbiddenException("Voce nao tem permissao para modificar este projeto");
+            throw new ForbiddenException("Você não tem permissão para modificar este projeto");
         }
     }
 
     private void validateViewPermission(Project project, User authenticatedUser) {
         boolean isOwner = project.getUser().getId().equals(authenticatedUser.getId());
         if (!isOwner && !Boolean.TRUE.equals(project.getShared())) {
-            throw new ForbiddenException("Voce nao tem permissao para acessar este projeto");
+            throw new ForbiddenException("Você não tem permissão para acessar este projeto");
         }
     }
 
