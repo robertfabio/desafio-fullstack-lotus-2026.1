@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProtectedRoute } from './components/routing/ProtectedRoute'
 import { PublicOnlyRoute } from './components/routing/PublicOnlyRoute'
+import { AppShell } from './components/layout/AppShell'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { ProjectDetailPage } from './pages/ProjectDetailPage'
@@ -17,10 +18,12 @@ function App() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/projects/:id" element={<ProjectDetailPage />} />
-        <Route path="/tasks" element={<TasksPage />} />
+        <Route element={<AppShell />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/tasks" element={<TasksPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />

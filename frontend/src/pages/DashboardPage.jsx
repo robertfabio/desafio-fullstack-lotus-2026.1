@@ -1,27 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
 import {
   Badge,
-  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Modal,
 } from '../components/ui'
 
 export function DashboardPage() {
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [isLoadingSummary, setIsLoadingSummary] = useState(true)
   const [summaryError, setSummaryError] = useState('')
   const [projectCount, setProjectCount] = useState(0)
   const [tasks, setTasks] = useState([])
   const user = useAuthStore((state) => state.user)
-  const clearAuth = useAuthStore((state) => state.clearAuth)
-  const navigate = useNavigate()
 
   const taskSummary = useMemo(() => {
     const byStatus = {
@@ -132,15 +126,8 @@ export function DashboardPage() {
     loadSummary()
   }, [])
 
-  function handleLogout() {
-    clearAuth()
-    setIsLogoutModalOpen(false)
-    navigate('/login', { replace: true })
-  }
-
   return (
-    <main className="min-h-screen bg-zinc-50 px-4 py-10">
-      <div className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto w-full max-w-5xl">
         <Card>
           <CardHeader>
             <CardTitle>Dashboard</CardTitle>
@@ -226,33 +213,8 @@ export function DashboardPage() {
                 </Card>
               </>
             ) : null}
-
-            <Button variant="default" onClick={() => navigate('/projects')}>
-              Ver projetos
-            </Button>
-            <Button variant="default" onClick={() => navigate('/tasks')}>
-              Ver tarefas
-            </Button>
-            <Button variant="outline" onClick={() => setIsLogoutModalOpen(true)}>
-              Sair
-            </Button>
           </CardContent>
         </Card>
-      </div>
-
-      <Modal
-        open={isLogoutModalOpen}
-        onClose={() => setIsLogoutModalOpen(false)}
-        title="Sair da conta"
-        description="Deseja realmente encerrar sua sessao?"
-      >
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setIsLogoutModalOpen(false)}>
-            Cancelar
-          </Button>
-          <Button onClick={handleLogout}>Confirmar</Button>
-        </div>
-      </Modal>
-    </main>
+    </div>
   )
 }

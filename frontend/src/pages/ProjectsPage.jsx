@@ -84,6 +84,11 @@ function normalizeProjectPayload(values) {
 function ProjectFormModal({ open, mode, initialProject, onClose, onSaved }) {
   const [submitError, setSubmitError] = useState('')
 
+  function handleClose() {
+    setSubmitError('')
+    onClose()
+  }
+
   const defaultValues = useMemo(
     () => ({
       name: initialProject?.name || '',
@@ -110,7 +115,6 @@ function ProjectFormModal({ open, mode, initialProject, onClose, onSaved }) {
     }
 
     reset(defaultValues)
-    setSubmitError('')
   }, [defaultValues, open, reset])
 
   async function onSubmit(values) {
@@ -133,9 +137,10 @@ function ProjectFormModal({ open, mode, initialProject, onClose, onSaved }) {
   }
 
   return (
+    <>
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title={mode === 'create' ? 'Novo projeto' : 'Editar projeto'}
       description="Preencha os campos para salvar o projeto."
       className="max-w-lg"
@@ -177,7 +182,7 @@ function ProjectFormModal({ open, mode, initialProject, onClose, onSaved }) {
         {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
 
         <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={onClose} className="w-auto">
+          <Button type="button" variant="outline" onClick={handleClose} className="w-auto">
             Cancelar
           </Button>
           <Button type="submit" className="w-auto" disabled={isSubmitting}>
@@ -186,6 +191,7 @@ function ProjectFormModal({ open, mode, initialProject, onClose, onSaved }) {
         </div>
       </form>
     </Modal>
+    </>
   )
 }
 
@@ -216,8 +222,8 @@ export function ProjectsPage() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-4 py-10">
-      <div className="mx-auto w-full max-w-5xl space-y-6">
+    <div>
+    <div className="mx-auto w-full max-w-6xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-zinc-900">Projetos</h1>
@@ -226,9 +232,6 @@ export function ProjectsPage() {
           <div className="flex gap-2">
             <Button variant="default" className="w-auto" onClick={() => setIsCreateOpen(true)}>
               Novo projeto
-            </Button>
-            <Button variant="outline" className="w-auto" onClick={() => navigate('/dashboard')}>
-              Voltar para dashboard
             </Button>
           </div>
         </div>
@@ -296,6 +299,6 @@ export function ProjectsPage() {
         onClose={() => setEditingProject(null)}
         onSaved={loadProjects}
       />
-    </main>
+    </div>
   )
 }

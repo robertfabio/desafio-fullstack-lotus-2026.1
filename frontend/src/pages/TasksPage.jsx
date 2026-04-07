@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import api from '../services/api'
 import {
@@ -138,6 +137,11 @@ function normalizeTaskPayload(values) {
 function TaskFormModal({ open, mode, projects, initialTask, onClose, onSaved }) {
   const [submitError, setSubmitError] = useState('')
 
+  function handleClose() {
+    setSubmitError('')
+    onClose()
+  }
+
   const defaultValues = useMemo(
     () => ({
       title: initialTask?.title || '',
@@ -166,7 +170,6 @@ function TaskFormModal({ open, mode, projects, initialTask, onClose, onSaved }) 
     }
 
     reset(defaultValues)
-    setSubmitError('')
   }, [defaultValues, open, reset])
 
   async function onSubmit(values) {
@@ -191,7 +194,7 @@ function TaskFormModal({ open, mode, projects, initialTask, onClose, onSaved }) 
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title={mode === 'create' ? 'Nova tarefa' : 'Editar tarefa'}
       description="Preencha os campos para salvar a tarefa."
       className="max-w-lg"
@@ -280,7 +283,7 @@ function TaskFormModal({ open, mode, projects, initialTask, onClose, onSaved }) 
         {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
 
         <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={onClose} className="w-auto">
+          <Button type="button" variant="outline" onClick={handleClose} className="w-auto">
             Cancelar
           </Button>
           <Button type="submit" className="w-auto" disabled={isSubmitting || projects.length === 0}>
@@ -293,7 +296,6 @@ function TaskFormModal({ open, mode, projects, initialTask, onClose, onSaved }) 
 }
 
 export function TasksPage() {
-  const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
   const [projects, setProjects] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -355,8 +357,15 @@ export function TasksPage() {
   }
 
   useEffect(() => {
+    const initialFilters = {
+      status: '',
+      priority: '',
+      projectId: '',
+      dueDate: '',
+    }
+
     loadProjects()
-    loadTasks(filters)
+    loadTasks(initialFilters)
   }, [])
 
   function handleFilterChange(event) {
@@ -417,7 +426,7 @@ export function TasksPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-4 py-10">
+    <>
       <div className="mx-auto w-full max-w-6xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -427,9 +436,6 @@ export function TasksPage() {
           <div className="flex gap-2">
             <Button variant="default" className="w-auto" onClick={() => setIsCreateOpen(true)}>
               Nova tarefa
-            </Button>
-            <Button variant="outline" className="w-auto" onClick={() => navigate('/dashboard')}>
-              Voltar para dashboard
             </Button>
           </div>
         </div>
@@ -594,6 +600,6 @@ export function TasksPage() {
         onClose={() => setEditingTask(null)}
         onSaved={() => loadTasks(filters)}
       />
-    </main>
+    </>
   )
 }
