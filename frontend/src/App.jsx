@@ -3,6 +3,7 @@ import { ProtectedRoute } from './components/routing/ProtectedRoute'
 import { PublicOnlyRoute } from './components/routing/PublicOnlyRoute'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
+import { ProjectsPage } from './pages/ProjectsPage'
 import { RegisterPage } from './pages/RegisterPage'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />

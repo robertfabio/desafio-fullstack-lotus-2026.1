@@ -42,6 +42,9 @@ export function DashboardPage() {
               </p>
               <p>Email: {user?.email || '-'}</p>
             </div>
+            <Button variant="default" onClick={() => navigate('/projects')}>
+              Ver projetos
+            </Button>
             <Button variant="outline" onClick={() => setIsLogoutModalOpen(true)}>
               Sair
             </Button>
