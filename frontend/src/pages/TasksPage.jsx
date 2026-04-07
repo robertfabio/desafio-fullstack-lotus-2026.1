@@ -300,6 +300,8 @@ export function TasksPage() {
   const [requestError, setRequestError] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
+  const [statusUpdatingByTaskId, setStatusUpdatingByTaskId] = useState({})
+  const [statusErrorByTaskId, setStatusErrorByTaskId] = useState({})
   const [filters, setFilters] = useState({
     status: '',
     priority: '',
@@ -377,6 +379,41 @@ export function TasksPage() {
 
     setFilters(resetFilters)
     loadTasks(resetFilters)
+  }
+
+  async function handleInlineStatusChange(task, nextStatus) {
+    if (!task?.id || !nextStatus || nextStatus === task.status) {
+      return
+    }
+
+    setStatusErrorByTaskId((current) => ({ ...current, [task.id]: '' }))
+    setStatusUpdatingByTaskId((current) => ({ ...current, [task.id]: true }))
+
+    try {
+      const response = await api.patch(`/tasks/${task.id}/status`, { status: nextStatus })
+      const updatedTask = response.data
+
+      setTasks((current) =>
+        current.map((item) => {
+          if (item.id !== task.id) {
+            return item
+          }
+
+          return {
+            ...item,
+            status: updatedTask.status,
+            updated_at: updatedTask.updated_at,
+          }
+        }),
+      )
+    } catch (error) {
+      setStatusErrorByTaskId((current) => ({
+        ...current,
+        [task.id]: error.message || 'Nao foi possivel atualizar o status',
+      }))
+    } finally {
+      setStatusUpdatingByTaskId((current) => ({ ...current, [task.id]: false }))
+    }
   }
 
   return (
@@ -494,6 +531,26 @@ export function TasksPage() {
                   <CardDescription>{task.description || 'Sem descricao cadastrada.'}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm text-zinc-600">
+                  <div className="space-y-1">
+                    <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">Atualizacao rapida de status</span>
+                    <select
+                      value={task.status}
+                      disabled={Boolean(statusUpdatingByTaskId[task.id])}
+                      onChange={(event) => handleInlineStatusChange(task, event.target.value)}
+                      className="h-9 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {STATUS_OPTIONS.filter((option) => option.value).map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    {statusUpdatingByTaskId[task.id] ? <p className="text-xs text-zinc-500">Atualizando status...</p> : null}
+                    {statusErrorByTaskId[task.id] ? (
+                      <p className="text-xs text-red-600">{statusErrorByTaskId[task.id]}</p>
+                    ) : null}
+                  </div>
+
                   <div className="flex flex-wrap gap-2">
                     <Badge variant={statusBadgeVariant(task.status)}>{labelize(task.status)}</Badge>
                     <Badge variant={priorityBadgeVariant(task.priority)}>{labelize(task.priority)}</Badge>
