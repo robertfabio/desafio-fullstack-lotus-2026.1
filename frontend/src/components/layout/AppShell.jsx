@@ -13,10 +13,10 @@ function navLinkClass({ isActive }) {
   const baseClass = 'block rounded-md px-3 py-2 text-sm font-medium transition-colors'
 
   if (isActive) {
-    return `${baseClass} bg-zinc-900 text-white`
+    return `${baseClass} border border-[#4b2474] bg-[#5b2d8e] text-white shadow-[0_2px_0_0_#4b2474]`
   }
 
-  return `${baseClass} text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900`
+  return `${baseClass} text-[#70538f] hover:bg-[#f3ebfb] hover:text-[#5b2d8e]`
 }
 
 export function AppShell() {
@@ -31,11 +31,11 @@ export function AppShell() {
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 text-zinc-900">
-      <aside className="hidden w-64 shrink-0 border-r border-zinc-200 bg-white p-5 md:flex md:flex-col">
+    <div className="flex min-h-screen bg-[#f7f2fc] text-[#2f2141]">
+      <aside className="hidden w-64 shrink-0 border-r-2 border-[#e6d9f3] bg-white p-5 md:flex md:flex-col">
         <div className="mb-6">
-          <p className="text-lg font-semibold">Lotus</p>
-          <p className="text-xs text-zinc-500">Task management</p>
+          <p className="text-lg font-semibold text-[#2f2141]">Lotus</p>
+          <p className="text-xs text-[#70538f]">Task management</p>
         </div>
 
         <nav className="space-y-2">
@@ -46,9 +46,9 @@ export function AppShell() {
           ))}
         </nav>
 
-        <div className="mt-auto rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm">
-          <p className="font-medium text-zinc-800">{user?.name || 'Usuario'}</p>
-          <p className="truncate text-zinc-500">{user?.email || '-'}</p>
+        <div className="mt-auto rounded-xl border-2 border-[#e6d9f3] bg-[#faf7fe] p-3 text-sm shadow-[0_3px_0_0_#efe6f8]">
+          <p className="font-medium text-[#2f2141]">{user?.name || 'Usuario'}</p>
+          <p className="truncate text-[#70538f]">{user?.email || '-'}</p>
           <Button variant="outline" className="mt-3 w-full" onClick={handleLogout}>
             Sair
           </Button>
@@ -56,16 +56,16 @@ export function AppShell() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 md:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b-2 border-[#e6d9f3] bg-white px-4 py-3 md:hidden">
           <button
             type="button"
             aria-label="Abrir menu"
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700"
+            className="rounded-xl border-2 border-[#d8c8ea] bg-white px-3 py-2 text-sm font-medium text-[#5b2d8e] shadow-[0_2px_0_0_#efe6f8]"
             onClick={() => setIsMobileSidebarOpen(true)}
           >
             Menu
           </button>
-          <p className="text-sm font-semibold text-zinc-900">Lotus</p>
+          <p className="text-sm font-semibold text-[#2f2141]">Lotus</p>
           <Button variant="outline" className="h-9 w-auto px-3" onClick={handleLogout}>
             Sair
           </Button>
@@ -73,7 +73,7 @@ export function AppShell() {
 
         {isMobileSidebarOpen ? (
           <div
-            className="fixed inset-0 z-40 bg-zinc-950/40 md:hidden"
+            className="fixed inset-0 z-40 bg-[#2f2141]/45 md:hidden"
             role="presentation"
             onClick={() => setIsMobileSidebarOpen(false)}
           >
@@ -81,15 +81,15 @@ export function AppShell() {
               role="dialog"
               aria-modal="true"
               aria-label="Menu de navegacao"
-              className="h-full w-72 max-w-[85vw] bg-white p-5"
+              className="h-full w-72 max-w-[85vw] border-r-2 border-[#e6d9f3] bg-white p-5"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="mb-5 flex items-center justify-between">
-                <p className="text-lg font-semibold">Navegacao</p>
+                <p className="text-lg font-semibold text-[#2f2141]">Navegacao</p>
                 <button
                   type="button"
                   aria-label="Fechar menu"
-                  className="rounded-md border border-zinc-300 px-2 py-1 text-sm text-zinc-700"
+                  className="rounded-xl border-2 border-[#d8c8ea] px-2 py-1 text-sm text-[#5b2d8e]"
                   onClick={() => setIsMobileSidebarOpen(false)}
                 >
                   Fechar
@@ -109,9 +109,9 @@ export function AppShell() {
                 ))}
               </nav>
 
-              <div className="mt-6 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm">
-                <p className="font-medium text-zinc-800">{user?.name || 'Usuario'}</p>
-                <p className="truncate text-zinc-500">{user?.email || '-'}</p>
+              <div className="mt-6 rounded-xl border-2 border-[#e6d9f3] bg-[#faf7fe] p-3 text-sm shadow-[0_3px_0_0_#efe6f8]">
+                <p className="font-medium text-[#2f2141]">{user?.name || 'Usuario'}</p>
+                <p className="truncate text-[#70538f]">{user?.email || '-'}</p>
               </div>
             </aside>
           </div>

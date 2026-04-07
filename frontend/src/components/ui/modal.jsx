@@ -30,7 +30,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/50 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#2f2141]/45 px-4"
       role="presentation"
       onClick={onClose}
     >
@@ -38,11 +38,11 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title || 'Modal'}
-        className={cn('w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl', className)}
+        className={cn('w-full max-w-md rounded-2xl border-2 border-[#e6d9f3] bg-white p-6 shadow-[0_8px_0_0_#e6d9f3]', className)}
         onClick={(event) => event.stopPropagation()}
       >
-        {title ? <h2 className="text-lg font-semibold text-zinc-900">{title}</h2> : null}
-        {description ? <p className="mt-1 text-sm text-zinc-600">{description}</p> : null}
+        {title ? <h2 className="text-lg font-semibold text-[#2f2141]">{title}</h2> : null}
+        {description ? <p className="mt-1 text-sm text-[#70538f]">{description}</p> : null}
         <div className="mt-4">{children}</div>
       </div>
     </div>
