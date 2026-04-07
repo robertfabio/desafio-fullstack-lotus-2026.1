@@ -1,0 +1,154 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-04-06T23:30:00.000Z",
+  "__export_source": "insomnia.desktop.app:v10.0.0",
+  "resources": [
+    {
+      "_id": "wrk_lotus",
+      "_type": "workspace",
+      "name": "Lotus API",
+      "description": "Colecao de requests para API Lotus",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_lotus_base",
+      "_type": "environment",
+      "parentId": "wrk_lotus",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "jwt": ""
+      }
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_lotus",
+      "name": "Auth"
+    },
+    {
+      "_id": "fld_projects",
+      "_type": "request_group",
+      "parentId": "wrk_lotus",
+      "name": "Projects"
+    },
+    {
+      "_id": "fld_tasks",
+      "_type": "request_group",
+      "parentId": "wrk_lotus",
+      "name": "Tasks"
+    },
+    {
+      "_id": "req_register",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "POST /auth/register",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/register",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Alice\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"123456\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ]
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "POST /auth/login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"123456\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ]
+    },
+    {
+      "_id": "req_me",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "GET /auth/me",
+      "method": "GET",
+      "url": "{{ _.base_url }}/auth/me",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.jwt }}" }
+      ]
+    },
+    {
+      "_id": "req_create_project",
+      "_type": "request",
+      "parentId": "fld_projects",
+      "name": "POST /projects",
+      "method": "POST",
+      "url": "{{ _.base_url }}/projects",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Projeto A\",\n  \"description\": \"Projeto de exemplo\",\n  \"shared\": false\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.jwt }}" }
+      ]
+    },
+    {
+      "_id": "req_project_summary",
+      "_type": "request",
+      "parentId": "fld_projects",
+      "name": "GET /projects/:id/summary",
+      "method": "GET",
+      "url": "{{ _.base_url }}/projects/00000000-0000-0000-0000-000000000000/summary",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.jwt }}" }
+      ]
+    },
+    {
+      "_id": "req_create_task",
+      "_type": "request",
+      "parentId": "fld_tasks",
+      "name": "POST /tasks",
+      "method": "POST",
+      "url": "{{ _.base_url }}/tasks",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Task A\",\n  \"description\": \"Descricao da task\",\n  \"status\": \"pending\",\n  \"priority\": \"medium\",\n  \"due_date\": \"2026-12-31T12:00:00\",\n  \"project_id\": \"00000000-0000-0000-0000-000000000000\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.jwt }}" }
+      ]
+    },
+    {
+      "_id": "req_filter_tasks",
+      "_type": "request",
+      "parentId": "fld_tasks",
+      "name": "GET /tasks?status=...&priority=...",
+      "method": "GET",
+      "url": "{{ _.base_url }}/tasks?status=pending&priority=medium",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.jwt }}" }
+      ]
+    },
+    {
+      "_id": "req_patch_task_status",
+      "_type": "request",
+      "parentId": "fld_tasks",
+      "name": "PATCH /tasks/:id/status",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/tasks/00000000-0000-0000-0000-000000000000/status",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"done\"\n}"
+      },
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.jwt }}" }
+      ]
+    }
+  ]
+}
