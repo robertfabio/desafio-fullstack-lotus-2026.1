@@ -15,28 +15,39 @@ import {
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 
-const loginSchema = z.object({
-  email: z.string().min(1, 'Email e obrigatorio').email('Email invalido'),
-  password: z
-    .string()
-    .min(1, 'Senha e obrigatoria')
-    .min(6, 'Senha deve ter no minimo 6 caracteres'),
-})
+const registerSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, 'Nome e obrigatorio')
+      .min(2, 'Nome deve ter no minimo 2 caracteres'),
+    email: z.string().min(1, 'Email e obrigatorio').email('Email invalido'),
+    password: z
+      .string()
+      .min(1, 'Senha e obrigatoria')
+      .min(6, 'Senha deve ter no minimo 6 caracteres'),
+    confirmPassword: z.string().min(1, 'Confirmacao de senha e obrigatoria'),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    message: 'As senhas devem ser iguais',
+    path: ['confirmPassword'],
+  })
 
-export function LoginPage({ onSwitchToRegister }) {
+export function RegisterPage({ onSwitchToLogin }) {
   const [requestError, setRequestError] = useState('')
   const setAuth = useAuthStore((state) => state.setAuth)
-  const user = useAuthStore((state) => state.user)
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   })
 
@@ -44,13 +55,18 @@ export function LoginPage({ onSwitchToRegister }) {
     setRequestError('')
 
     try {
-      const response = await api.post('/auth/login', values)
+      const response = await api.post('/auth/register', {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      })
+
       setAuth({
         token: response.data.token,
         user: response.data.user,
       })
     } catch (error) {
-      setRequestError(error.message || 'Nao foi possivel fazer login')
+      setRequestError(error.message || 'Nao foi possivel criar a conta')
     }
   }
 
@@ -59,13 +75,26 @@ export function LoginPage({ onSwitchToRegister }) {
       <div className="mx-auto w-full max-w-md">
         <Card>
           <CardHeader>
-            <CardTitle>Entrar</CardTitle>
+            <CardTitle>Criar conta</CardTitle>
             <CardDescription>
-              Use seu email e senha para acessar o painel Lotus.
+              Cadastre-se para acessar seus projetos e tarefas no Lotus.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Seu nome"
+                  autoComplete="name"
+                  aria-invalid={Boolean(errors.name)}
+                  {...register('name')}
+                />
+                {errors.name ? <p className="text-sm text-red-600">{errors.name.message}</p> : null}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -76,9 +105,7 @@ export function LoginPage({ onSwitchToRegister }) {
                   aria-invalid={Boolean(errors.email)}
                   {...register('email')}
                 />
-                {errors.email ? (
-                  <p className="text-sm text-red-600">{errors.email.message}</p>
-                ) : null}
+                {errors.email ? <p className="text-sm text-red-600">{errors.email.message}</p> : null}
               </div>
 
               <div className="space-y-2">
@@ -87,7 +114,7 @@ export function LoginPage({ onSwitchToRegister }) {
                   id="password"
                   type="password"
                   placeholder="******"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   aria-invalid={Boolean(errors.password)}
                   {...register('password')}
                 />
@@ -96,27 +123,36 @@ export function LoginPage({ onSwitchToRegister }) {
                 ) : null}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar senha</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="******"
+                  autoComplete="new-password"
+                  aria-invalid={Boolean(errors.confirmPassword)}
+                  {...register('confirmPassword')}
+                />
+                {errors.confirmPassword ? (
+                  <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+                ) : null}
+              </div>
+
               {requestError ? <p className="text-sm text-red-600">{requestError}</p> : null}
 
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Entrando...' : 'Entrar'}
+                {isSubmitting ? 'Cadastrando...' : 'Criar conta'}
               </Button>
             </form>
 
-            {user ? (
-              <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
-                Usuario autenticado: {user.name} ({user.email})
-              </div>
-            ) : null}
-
             <div className="mt-4 text-center text-sm text-zinc-600">
-              Ainda nao possui conta?{' '}
+              Ja possui conta?{' '}
               <button
                 type="button"
-                onClick={onSwitchToRegister}
+                onClick={onSwitchToLogin}
                 className="font-medium text-zinc-900 underline-offset-4 hover:underline"
               >
-                Criar conta
+                Entrar
               </button>
             </div>
           </CardContent>
