@@ -45,6 +45,9 @@ export function DashboardPage() {
             <Button variant="default" onClick={() => navigate('/projects')}>
               Ver projetos
             </Button>
+            <Button variant="default" onClick={() => navigate('/tasks')}>
+              Ver tarefas
+            </Button>
             <Button variant="outline" onClick={() => setIsLogoutModalOpen(true)}>
               Sair
             </Button>
