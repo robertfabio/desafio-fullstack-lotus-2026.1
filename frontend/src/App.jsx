@@ -3,6 +3,7 @@ import { ProtectedRoute } from './components/routing/ProtectedRoute'
 import { PublicOnlyRoute } from './components/routing/PublicOnlyRoute'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
+import { ProjectDetailPage } from './pages/ProjectDetailPage'
 import { ProjectsPage } from './pages/ProjectsPage'
 import { RegisterPage } from './pages/RegisterPage'
 
@@ -17,6 +18,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:id" element={<ProjectDetailPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />

@@ -265,9 +265,14 @@ export function ProjectsPage() {
                     <span className="font-medium text-zinc-800">Criado em:</span> {formatDate(project.created_at)}
                   </p>
                   <div className="pt-2">
-                    <Button variant="outline" className="w-auto" onClick={() => setEditingProject(project)}>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" className="w-auto" onClick={() => navigate(`/projects/${project.id}`)}>
+                        Detalhes
+                      </Button>
+                      <Button variant="outline" className="w-auto" onClick={() => setEditingProject(project)}>
                       Editar
-                    </Button>
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
