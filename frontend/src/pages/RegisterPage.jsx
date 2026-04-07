@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
@@ -33,9 +34,10 @@ const registerSchema = z
     path: ['confirmPassword'],
   })
 
-export function RegisterPage({ onSwitchToLogin }) {
+export function RegisterPage() {
   const [requestError, setRequestError] = useState('')
   const setAuth = useAuthStore((state) => state.setAuth)
+  const navigate = useNavigate()
 
   const {
     register,
@@ -65,6 +67,7 @@ export function RegisterPage({ onSwitchToLogin }) {
         token: response.data.token,
         user: response.data.user,
       })
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       setRequestError(error.message || 'Nao foi possivel criar a conta')
     }
@@ -147,13 +150,9 @@ export function RegisterPage({ onSwitchToLogin }) {
 
             <div className="mt-4 text-center text-sm text-zinc-600">
               Ja possui conta?{' '}
-              <button
-                type="button"
-                onClick={onSwitchToLogin}
-                className="font-medium text-zinc-900 underline-offset-4 hover:underline"
-              >
+              <Link to="/login" className="font-medium text-zinc-900 underline-offset-4 hover:underline">
                 Entrar
-              </button>
+              </Link>
             </div>
           </CardContent>
         </Card>

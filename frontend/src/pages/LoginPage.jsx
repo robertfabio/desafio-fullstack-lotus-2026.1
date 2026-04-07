@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
@@ -23,10 +24,11 @@ const loginSchema = z.object({
     .min(6, 'Senha deve ter no minimo 6 caracteres'),
 })
 
-export function LoginPage({ onSwitchToRegister }) {
+export function LoginPage() {
   const [requestError, setRequestError] = useState('')
   const setAuth = useAuthStore((state) => state.setAuth)
   const user = useAuthStore((state) => state.user)
+  const navigate = useNavigate()
 
   const {
     register,
@@ -49,6 +51,7 @@ export function LoginPage({ onSwitchToRegister }) {
         token: response.data.token,
         user: response.data.user,
       })
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       setRequestError(error.message || 'Nao foi possivel fazer login')
     }
@@ -111,13 +114,9 @@ export function LoginPage({ onSwitchToRegister }) {
 
             <div className="mt-4 text-center text-sm text-zinc-600">
               Ainda nao possui conta?{' '}
-              <button
-                type="button"
-                onClick={onSwitchToRegister}
-                className="font-medium text-zinc-900 underline-offset-4 hover:underline"
-              >
+              <Link to="/register" className="font-medium text-zinc-900 underline-offset-4 hover:underline">
                 Criar conta
-              </button>
+              </Link>
             </div>
           </CardContent>
         </Card>
