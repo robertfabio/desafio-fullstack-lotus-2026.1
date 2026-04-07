@@ -24,6 +24,7 @@ export function ProjectDetailPage() {
   const navigate = useNavigate()
   const [project, setProject] = useState(null)
   const [summary, setSummary] = useState(null)
+  const [tasks, setTasks] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [requestError, setRequestError] = useState('')
 
@@ -33,13 +34,15 @@ export function ProjectDetailPage() {
       setRequestError('')
 
       try {
-        const [projectResponse, summaryResponse] = await Promise.all([
+        const [projectResponse, summaryResponse, tasksResponse] = await Promise.all([
           api.get(`/projects/${id}`),
           api.get(`/projects/${id}/summary`),
+          api.get(`/projects/${id}/tasks`),
         ])
 
         setProject(projectResponse.data)
         setSummary(summaryResponse.data)
+        setTasks(Array.isArray(tasksResponse.data) ? tasksResponse.data : [])
       } catch (error) {
         setRequestError(error.message || 'Nao foi possivel carregar o detalhe do projeto')
       } finally {
@@ -119,6 +122,32 @@ export function ProjectDetailPage() {
               </CardHeader>
             </Card>
           </section>
+        ) : null}
+
+        {!isLoading && !requestError ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Tarefas do projeto</CardTitle>
+              <CardDescription>Lista de tarefas vinculadas a este projeto.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {tasks.length === 0 ? (
+                <p className="text-sm text-zinc-600">Nenhuma tarefa vinculada.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {tasks.map((task) => (
+                    <li
+                      key={task.id}
+                      className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm"
+                    >
+                      <p className="font-medium text-zinc-900">{task.title}</p>
+                      <p className="text-zinc-600">Status: {task.status}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
         ) : null}
     </div>
   )

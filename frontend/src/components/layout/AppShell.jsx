@@ -5,6 +5,7 @@ import SwupPreloadPlugin from '@swup/preload-plugin'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../ui'
 import { useAuthStore } from '../../stores/authStore'
+import api from '../../services/api'
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Painel' },
@@ -84,9 +85,15 @@ export function AppShell() {
     }, 160)
   }, [location.pathname])
 
-  function handleLogout() {
-    clearAuth()
-    navigate('/login', { replace: true })
+  async function handleLogout() {
+    try {
+      await api.post('/auth/logout')
+    } catch {
+      // Mesmo que a API falhe, encerra a sessao local para nao prender o usuario.
+    } finally {
+      clearAuth()
+      navigate('/login', { replace: true })
+    }
   }
 
   return (
