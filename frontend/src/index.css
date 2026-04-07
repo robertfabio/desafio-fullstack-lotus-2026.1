@@ -95,6 +95,19 @@ textarea:focus {
   box-shadow: 0 0 0 2px #8a58bf;
 }
 
+html.is-changing .swup-transition-fade {
+  transition: opacity 260ms ease;
+  opacity: 1;
+}
+
+html.is-animating .swup-transition-fade {
+  opacity: 0;
+}
+
+html.is-rendering .swup-transition-fade {
+  opacity: 1;
+}
+
 code,
 .counter {
   font-family: var(--mono);
