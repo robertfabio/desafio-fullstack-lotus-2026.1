@@ -184,4 +184,3 @@ npm test
 ## Documentação complementar
 - docs/README.md
 - docs/insomnia-lotus.json
-- AI_CONTEXT.md
