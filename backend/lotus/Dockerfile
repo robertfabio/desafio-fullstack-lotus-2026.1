@@ -7,6 +7,7 @@ WORKDIR /app
 COPY .mvn .mvn
 COPY mvnw .
 COPY pom.xml .
+COPY src src
 
 # Make mvnw executable and build without tests
 RUN chmod +x ./mvnw && \
