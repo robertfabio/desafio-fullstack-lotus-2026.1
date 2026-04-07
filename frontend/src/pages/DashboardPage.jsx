@@ -46,6 +46,70 @@ export function DashboardPage() {
     }
   }, [tasks])
 
+  const upcomingDeadlineTasks = useMemo(() => {
+    const now = Date.now()
+
+    return tasks
+      .filter((task) => {
+        if (task?.status === 'done' || !task?.due_date) {
+          return false
+        }
+
+        const dueDate = new Date(task.due_date)
+        if (Number.isNaN(dueDate.getTime())) {
+          return false
+        }
+
+        return dueDate.getTime() >= now
+      })
+      .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime())
+      .slice(0, 5)
+  }, [tasks])
+
+  function formatDateTime(value) {
+    if (!value) {
+      return '-'
+    }
+
+    const parsedDate = new Date(value)
+    if (Number.isNaN(parsedDate.getTime())) {
+      return '-'
+    }
+
+    return new Intl.DateTimeFormat('pt-BR', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(parsedDate)
+  }
+
+  function statusLabel(status) {
+    if (status === 'in_progress') {
+      return 'Em progresso'
+    }
+
+    if (status === 'pending') {
+      return 'Pendente'
+    }
+
+    if (status === 'done') {
+      return 'Concluida'
+    }
+
+    return '-'
+  }
+
+  function statusVariant(status) {
+    if (status === 'in_progress') {
+      return 'warning'
+    }
+
+    if (status === 'done') {
+      return 'success'
+    }
+
+    return 'outline'
+  }
+
   useEffect(() => {
     async function loadSummary() {
       setIsLoadingSummary(true)
@@ -97,42 +161,70 @@ export function DashboardPage() {
             {summaryError ? <p className="text-sm text-red-600">{summaryError}</p> : null}
 
             {!isLoadingSummary && !summaryError ? (
-              <section className="grid gap-3 sm:grid-cols-2">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardDescription>Total de projetos</CardDescription>
-                    <CardTitle className="text-3xl">{projectCount}</CardTitle>
-                  </CardHeader>
-                </Card>
+              <>
+                <section className="grid gap-3 sm:grid-cols-2">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Total de projetos</CardDescription>
+                      <CardTitle className="text-3xl">{projectCount}</CardTitle>
+                    </CardHeader>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Total de tarefas</CardDescription>
+                      <CardTitle className="text-3xl">{taskSummary.total}</CardTitle>
+                    </CardHeader>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Tarefas pendentes</CardDescription>
+                      <CardTitle className="text-3xl">{taskSummary.byStatus.pending}</CardTitle>
+                    </CardHeader>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardDescription>Tarefas em progresso</CardDescription>
+                      <CardTitle className="text-3xl">{taskSummary.byStatus.in_progress}</CardTitle>
+                    </CardHeader>
+                  </Card>
+
+                  <Card className="sm:col-span-2">
+                    <CardHeader className="pb-2">
+                      <CardDescription>Tarefas concluidas</CardDescription>
+                      <CardTitle className="text-3xl">{taskSummary.byStatus.done}</CardTitle>
+                    </CardHeader>
+                  </Card>
+                </section>
 
                 <Card>
-                  <CardHeader className="pb-2">
-                    <CardDescription>Total de tarefas</CardDescription>
-                    <CardTitle className="text-3xl">{taskSummary.total}</CardTitle>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Proximas tarefas com prazo</CardTitle>
+                    <CardDescription>Mostrando as 5 tarefas mais proximas do vencimento.</CardDescription>
                   </CardHeader>
+                  <CardContent>
+                    {upcomingDeadlineTasks.length === 0 ? (
+                      <p className="text-sm text-zinc-600">Nenhuma tarefa futura com prazo definida.</p>
+                    ) : (
+                      <ul className="space-y-3">
+                        {upcomingDeadlineTasks.map((task) => (
+                          <li key={task.id} className="rounded-md border border-zinc-200 bg-zinc-50 p-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="font-medium text-zinc-900">{task.title}</p>
+                                <p className="text-sm text-zinc-600">Prazo: {formatDateTime(task.due_date)}</p>
+                              </div>
+                              <Badge variant={statusVariant(task.status)}>{statusLabel(task.status)}</Badge>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </CardContent>
                 </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardDescription>Tarefas pendentes</CardDescription>
-                    <CardTitle className="text-3xl">{taskSummary.byStatus.pending}</CardTitle>
-                  </CardHeader>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardDescription>Tarefas em progresso</CardDescription>
-                    <CardTitle className="text-3xl">{taskSummary.byStatus.in_progress}</CardTitle>
-                  </CardHeader>
-                </Card>
-
-                <Card className="sm:col-span-2">
-                  <CardHeader className="pb-2">
-                    <CardDescription>Tarefas concluidas</CardDescription>
-                    <CardTitle className="text-3xl">{taskSummary.byStatus.done}</CardTitle>
-                  </CardHeader>
-                </Card>
-              </section>
+              </>
             ) : null}
 
             <Button variant="default" onClick={() => navigate('/projects')}>
