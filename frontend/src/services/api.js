@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { clearAccessToken, getAccessToken } from './tokenStorage'
+import { useAuthStore } from '../stores/authStore'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
@@ -13,7 +13,7 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = getAccessToken()
+    const { token } = useAuthStore.getState()
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -45,7 +45,7 @@ function mapAxiosError(error) {
   }
 
   if (status === 401) {
-    clearAccessToken()
+    useAuthStore.getState().clearAuth()
   }
 
   return mappedError
