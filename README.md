@@ -172,7 +172,7 @@ npm test
 - [x] Componentes reutilizáveis de UI
 - [x] Testes de componentes com Vitest + RTL
 - [x] .env.example presente
-- [ ] Sistema de toast global para feedback (pendente)
+- [x] Sistema de toast global para feedback
 
 ### Entrega e processo
 - [x] README com justificativa de stack e instruções de execução

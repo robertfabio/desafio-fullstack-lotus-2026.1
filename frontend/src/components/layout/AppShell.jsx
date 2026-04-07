@@ -3,6 +3,7 @@ import Swup from 'swup'
 import SwupParallelPlugin from '@swup/parallel-plugin'
 import SwupPreloadPlugin from '@swup/preload-plugin'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Button } from '../ui'
 import { useAuthStore } from '../../stores/authStore'
 import api from '../../services/api'
@@ -88,8 +89,9 @@ export function AppShell() {
   async function handleLogout() {
     try {
       await api.post('/auth/logout')
+      toast.success('Logout realizado com sucesso')
     } catch {
-      // Mesmo que a API falhe, encerra a sessao local para nao prender o usuario.
+      toast.error('Falha ao registrar logout no servidor')
     } finally {
       clearAuth()
       navigate('/login', { replace: true })

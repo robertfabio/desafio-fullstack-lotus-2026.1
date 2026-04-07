@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import api from '../services/api'
 import { useAuthStore } from '../stores/authStore'
@@ -51,8 +52,10 @@ export function LoginPage() {
         token: response.data.token,
         user: response.data.user,
       })
+      toast.success('Login realizado com sucesso')
       navigate('/dashboard', { replace: true })
     } catch (error) {
+      toast.error(error.message || 'Nao foi possivel fazer login')
       setRequestError(error.message || 'Nao foi possivel fazer login')
     }
   }

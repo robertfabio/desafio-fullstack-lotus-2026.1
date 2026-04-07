@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from 'sonner'
 import { useAuthStore } from '../stores/authStore'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
@@ -26,6 +27,7 @@ api.interceptors.request.use(
 
 function mapAxiosError(error) {
   if (!error.response) {
+    toast.error('Erro de rede. Verifique sua conexao com a API.')
     return {
       status: 0,
       message: 'Erro de rede. Verifique sua conexao com a API.',
@@ -45,7 +47,12 @@ function mapAxiosError(error) {
   }
 
   if (status === 401) {
+    toast.info('Sessao expirada. Faca login novamente.')
     useAuthStore.getState().clearAuth()
+  }
+
+  if (status === 403) {
+    toast.error(mappedError.message || 'Acesso negado')
   }
 
   return mappedError
