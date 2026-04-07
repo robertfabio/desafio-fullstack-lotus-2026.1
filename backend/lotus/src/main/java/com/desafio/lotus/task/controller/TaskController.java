@@ -8,12 +8,14 @@ import com.desafio.lotus.task.model.TaskStatus;
 import com.desafio.lotus.user.model.User;
 import com.desafio.lotus.task.service.TaskService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/tasks")
+@Validated
 public class TaskController {
 
     private final TaskService taskService;
@@ -48,8 +51,18 @@ public class TaskController {
     @ResponseStatus(HttpStatus.OK)
     public List<TaskResponse> findAll(
             Authentication authentication,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String priority,
+            @RequestParam(required = false)
+            @Pattern(
+                regexp = "(?i)pending|in_progress|done",
+                message = "Status deve ser: pending, in_progress ou done"
+            )
+            String status,
+            @RequestParam(required = false)
+            @Pattern(
+                regexp = "(?i)low|medium|high",
+                message = "Prioridade deve ser: low, medium ou high"
+            )
+            String priority,
             @RequestParam(name = "project_id", required = false) UUID projectId,
             @RequestParam(name = "due_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate
     ) {

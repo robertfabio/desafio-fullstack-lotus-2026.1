@@ -1,5 +1,6 @@
 package com.desafio.lotus.project.dto.request;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ public record ProjectRequest(
         @Size(max = 5000, message = "Descrição deve ter no máximo 5000 caracteres")
         String description,
 
+        @FutureOrPresent(message = "Prazo deve ser uma data atual ou futura")
         LocalDateTime deadline,
 
         Boolean shared

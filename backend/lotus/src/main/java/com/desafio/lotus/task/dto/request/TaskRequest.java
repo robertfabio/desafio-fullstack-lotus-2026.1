@@ -2,6 +2,7 @@ package com.desafio.lotus.task.dto.request;
 
 import com.desafio.lotus.task.model.TaskPriority;
 import com.desafio.lotus.task.model.TaskStatus;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -22,6 +23,7 @@ public record TaskRequest(
         @NotNull(message = "Prioridade e obrigatoria")
         TaskPriority priority,
 
+        @FutureOrPresent(message = "Data limite deve ser atual ou futura")
         LocalDateTime dueDate,
 
         @NotNull(message = "Projeto e obrigatorio")
