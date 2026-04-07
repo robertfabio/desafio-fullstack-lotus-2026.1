@@ -1,7 +1,21 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { z } from 'zod'
 import api from '../services/api'
-import { Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Label,
+  Modal,
+} from '../components/ui'
 
 const STATUS_OPTIONS = [
   { label: 'Todos', value: '' },
@@ -16,6 +30,37 @@ const PRIORITY_OPTIONS = [
   { label: 'Media', value: 'medium' },
   { label: 'Alta', value: 'high' },
 ]
+
+const taskSchema = z.object({
+  title: z
+    .string()
+    .min(1, 'Titulo e obrigatorio')
+    .min(2, 'Titulo deve ter no minimo 2 caracteres')
+    .max(255, 'Titulo deve ter no maximo 255 caracteres'),
+  description: z
+    .string()
+    .max(5000, 'Descricao deve ter no maximo 5000 caracteres')
+    .optional()
+    .or(z.literal('')),
+  status: z.enum(['pending', 'in_progress', 'done'], {
+    message: 'Status invalido',
+  }),
+  priority: z.enum(['low', 'medium', 'high'], {
+    message: 'Prioridade invalida',
+  }),
+  dueDate: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine((value) => {
+      if (!value) {
+        return true
+      }
+
+      return !Number.isNaN(new Date(value).getTime())
+    }, 'Data limite invalida'),
+  projectId: z.string().uuid('Projeto invalido'),
+})
 
 function formatDateTime(value) {
   if (!value) {
@@ -65,12 +110,196 @@ function labelize(value) {
   return value.replaceAll('_', ' ')
 }
 
+function toDateTimeLocalInput(value) {
+  if (!value) {
+    return ''
+  }
+
+  const parsedDate = new Date(value)
+  if (Number.isNaN(parsedDate.getTime())) {
+    return ''
+  }
+
+  const timezoneOffsetInMs = parsedDate.getTimezoneOffset() * 60000
+  return new Date(parsedDate.getTime() - timezoneOffsetInMs).toISOString().slice(0, 16)
+}
+
+function normalizeTaskPayload(values) {
+  return {
+    title: values.title.trim(),
+    description: values.description?.trim() || null,
+    status: values.status,
+    priority: values.priority,
+    due_date: values.dueDate || null,
+    project_id: values.projectId,
+  }
+}
+
+function TaskFormModal({ open, mode, projects, initialTask, onClose, onSaved }) {
+  const [submitError, setSubmitError] = useState('')
+
+  const defaultValues = useMemo(
+    () => ({
+      title: initialTask?.title || '',
+      description: initialTask?.description || '',
+      status: initialTask?.status || 'pending',
+      priority: initialTask?.priority || 'medium',
+      dueDate: toDateTimeLocalInput(initialTask?.due_date),
+      projectId: initialTask?.project_id || projects[0]?.id || '',
+    }),
+    [initialTask, projects],
+  )
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(taskSchema),
+    defaultValues,
+  })
+
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+
+    reset(defaultValues)
+    setSubmitError('')
+  }, [defaultValues, open, reset])
+
+  async function onSubmit(values) {
+    setSubmitError('')
+
+    try {
+      const payload = normalizeTaskPayload(values)
+
+      if (mode === 'create') {
+        await api.post('/tasks', payload)
+      } else if (initialTask?.id) {
+        await api.put(`/tasks/${initialTask.id}`, payload)
+      }
+
+      onSaved()
+      onClose()
+    } catch (error) {
+      setSubmitError(error.message || 'Nao foi possivel salvar a tarefa')
+    }
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={mode === 'create' ? 'Nova tarefa' : 'Editar tarefa'}
+      description="Preencha os campos para salvar a tarefa."
+      className="max-w-lg"
+    >
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="space-y-2">
+          <Label htmlFor="task-title">Titulo</Label>
+          <Input id="task-title" placeholder="Minha tarefa" {...register('title')} />
+          {errors.title ? <p className="text-sm text-red-600">{errors.title.message}</p> : null}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="task-description">Descricao</Label>
+          <textarea
+            id="task-description"
+            rows={4}
+            className="flex w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 shadow-sm transition-colors placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="Descreva a tarefa"
+            {...register('description')}
+          />
+          {errors.description ? <p className="text-sm text-red-600">{errors.description.message}</p> : null}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="task-status">Status</Label>
+            <select
+              id="task-status"
+              className="h-10 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+              {...register('status')}
+            >
+              {STATUS_OPTIONS.filter((option) => option.value).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errors.status ? <p className="text-sm text-red-600">{errors.status.message}</p> : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="task-priority">Prioridade</Label>
+            <select
+              id="task-priority"
+              className="h-10 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+              {...register('priority')}
+            >
+              {PRIORITY_OPTIONS.filter((option) => option.value).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errors.priority ? <p className="text-sm text-red-600">{errors.priority.message}</p> : null}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="task-project">Projeto</Label>
+          <select
+            id="task-project"
+            disabled={projects.length === 0}
+            className="h-10 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:cursor-not-allowed disabled:opacity-60"
+            {...register('projectId')}
+          >
+            {projects.length === 0 ? <option value="">Nenhum projeto disponivel</option> : null}
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+          {errors.projectId ? <p className="text-sm text-red-600">{errors.projectId.message}</p> : null}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="task-due-date">Data limite</Label>
+          <Input id="task-due-date" type="datetime-local" {...register('dueDate')} />
+          {errors.dueDate ? <p className="text-sm text-red-600">{errors.dueDate.message}</p> : null}
+        </div>
+
+        {projects.length === 0 ? (
+          <p className="text-sm text-amber-700">Crie um projeto antes de cadastrar tarefas.</p>
+        ) : null}
+
+        {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
+
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={onClose} className="w-auto">
+            Cancelar
+          </Button>
+          <Button type="submit" className="w-auto" disabled={isSubmitting || projects.length === 0}>
+            {isSubmitting ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
 export function TasksPage() {
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([])
   const [projects, setProjects] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [requestError, setRequestError] = useState('')
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState(null)
   const [filters, setFilters] = useState({
     status: '',
     priority: '',
@@ -158,9 +387,14 @@ export function TasksPage() {
             <h1 className="text-2xl font-semibold text-zinc-900">Tarefas</h1>
             <p className="text-sm text-zinc-600">Listagem de tarefas com filtros por status, prioridade, projeto e data.</p>
           </div>
-          <Button variant="outline" className="w-auto" onClick={() => navigate('/dashboard')}>
-            Voltar para dashboard
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="default" className="w-auto" onClick={() => setIsCreateOpen(true)}>
+              Nova tarefa
+            </Button>
+            <Button variant="outline" className="w-auto" onClick={() => navigate('/dashboard')}>
+              Voltar para dashboard
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -274,12 +508,35 @@ export function TasksPage() {
                   <p>
                     <span className="font-medium text-zinc-800">Criada em:</span> {formatDateTime(task.created_at)}
                   </p>
+                  <div className="pt-2">
+                    <Button variant="outline" className="w-auto" onClick={() => setEditingTask(task)}>
+                      Editar
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </section>
         ) : null}
       </div>
+
+      <TaskFormModal
+        open={isCreateOpen}
+        mode="create"
+        projects={projects}
+        initialTask={null}
+        onClose={() => setIsCreateOpen(false)}
+        onSaved={() => loadTasks(filters)}
+      />
+
+      <TaskFormModal
+        open={Boolean(editingTask)}
+        mode="edit"
+        projects={projects}
+        initialTask={editingTask}
+        onClose={() => setEditingTask(null)}
+        onSaved={() => loadTasks(filters)}
+      />
     </main>
   )
 }
